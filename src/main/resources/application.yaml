@@ -1,4 +1,3 @@
-# application.yml
 server:
   port: 8082
 
@@ -23,17 +22,47 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  # Redis Configuration
-#  data:
-#    redis:
-#      host: localhost
-#      port: 6379
-#      timeout: 2000ms
-#      lettuce:
-#        pool:
-#          max-active: 8
-#          max-idle: 8
-#          min-idle: 0
+  # Email Configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: gulnarmmmdzad08@gmail.com
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000  # 5 seconds
+          timeout: 3000            # 3 seconds
+          writetimeout: 5000       # 5 seconds
+
+  # Redis Configuration (commented out)
+  # data:
+  #   redis:
+  #     host: localhost
+  #     port: 6379
+  #     timeout: 2000ms
+  #     lettuce:
+  #       pool:
+  #         max-active: 8
+  #         max-idle: 8
+  #         min-idle: 0
+
+# Email Templates Configuration
+email:
+  template:
+    subscription:
+      created: "New subscription created"
+      updated: "Subscription information updated"
+      activated: "Subscription activated"
+      deactivated: "Subscription deactivated"
+
+# Admin Configuration
+admin:
+  email: gulnarmmmdzad01@gmail.com
 
 # JWT Configuration
 jwt:

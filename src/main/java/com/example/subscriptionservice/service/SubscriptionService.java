@@ -7,6 +7,7 @@ import com.example.subscriptionservice.repository.SubscriptionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,12 @@ public class SubscriptionService {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Value("${admin.email:admin@company.com}")
+    private String adminEmail;
 
     // User/Public methods (existing functionality)
     public List<SubscriptionResponse> getAllSubscriptions() {
@@ -109,6 +116,15 @@ public class SubscriptionService {
         Subscription savedSubscription = subscriptionRepository.save(subscription);
         logger.info("Successfully created subscription with ID: {}", savedSubscription.getId());
 
+        // Send email notification to admin
+        try {
+            emailService.sendSubscriptionCreatedNotification(adminEmail, savedSubscription.getName());
+            logger.info("Subscription creation notification sent to admin: {}", adminEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send subscription creation notification: {}", e.getMessage());
+            // Email xətası subscription yaratmanı dayandırmasın
+        }
+
         return mapToResponse(savedSubscription);
     }
 
@@ -150,6 +166,8 @@ public class SubscriptionService {
             throw new RuntimeException("Subscription with this name already exists");
         }
 
+        String oldName = subscription.getName();
+
         subscription.setName(request.getName());
         subscription.setDescription(request.getDescription());
         subscription.setPrice(request.getPrice());
@@ -162,6 +180,14 @@ public class SubscriptionService {
         Subscription updatedSubscription = subscriptionRepository.save(subscription);
         logger.info("Successfully updated subscription: {}", id);
 
+        // Send email notification to admin
+        try {
+            emailService.sendSubscriptionUpdatedNotification(adminEmail, updatedSubscription.getName());
+            logger.info("Subscription update notification sent to admin: {}", adminEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send subscription update notification: {}", e.getMessage());
+        }
+
         return mapToResponse(updatedSubscription);
     }
 
@@ -172,10 +198,20 @@ public class SubscriptionService {
         Subscription subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Subscription not found"));
 
+        String subscriptionName = subscription.getName();
+
         subscription.setIsActive(false);
         subscriptionRepository.save(subscription);
 
         logger.info("Successfully deleted subscription: {}", id);
+
+        // Send email notification to admin
+        try {
+            emailService.sendSubscriptionDeactivatedNotification(adminEmail, subscriptionName);
+            logger.info("Subscription deactivation notification sent to admin: {}", adminEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send subscription deactivation notification: {}", e.getMessage());
+        }
     }
 
     @Transactional
@@ -189,6 +225,14 @@ public class SubscriptionService {
         Subscription activatedSubscription = subscriptionRepository.save(subscription);
 
         logger.info("Successfully activated subscription: {}", id);
+
+        // Send email notification to admin
+        try {
+            emailService.sendSubscriptionActivatedNotification(adminEmail, activatedSubscription.getName());
+            logger.info("Subscription activation notification sent to admin: {}", adminEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send subscription activation notification: {}", e.getMessage());
+        }
 
         return mapToResponse(activatedSubscription);
     }
