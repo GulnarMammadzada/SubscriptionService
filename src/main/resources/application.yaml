@@ -26,7 +26,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: gulnarmmmdzad08@gmail.com
+    username:
     password:
     properties:
       mail:
@@ -62,7 +62,7 @@ email:
 
 # Admin Configuration
 admin:
-  email: gulnarmmmdzad01@gmail.com
+  email:
 
 # JWT Configuration
 jwt:
